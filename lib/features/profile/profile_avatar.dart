@@ -8,13 +8,13 @@ class ProfileAvatar extends StatelessWidget {
   final double borderWidth;
 
   const ProfileAvatar({
-    Key? key,
+    super.key,
     this.imageAssetPath,
     this.size = 50,
     required this.onTap,
     this.borderColor = Colors.white,
     this.borderWidth = 2.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class ProfileAvatar extends StatelessWidget {
           border: Border.all(color: borderColor, width: borderWidth),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black,
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),

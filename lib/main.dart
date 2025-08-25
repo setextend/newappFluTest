@@ -1,8 +1,10 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:newfapp/providers/app_provider.dart';
+// import 'package:newfapp/providers/app_provider.dart';
 import 'package:newfapp/features/profile/profile_avatar.dart';
 import 'package:provider/provider.dart';
+import '../widgets/index.dart';
+import '../screens/index.dart';
 
 void main() {
   runApp(MyApp());
@@ -71,6 +73,14 @@ class _MyHomePageState extends State<MyHomePage> {
         page = TestWidgetsPage();
       case 3:
         page = TestUpperPage(onTap: _openSettingsDrawer);
+      case 4:
+        page = TestSliverListPage();
+      case 5:
+        page = TestChatPage();
+      case 6:
+        page = TestDataBox();
+      case 7:
+        page = TestDdragIconButton();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -102,6 +112,22 @@ class _MyHomePageState extends State<MyHomePage> {
                       icon: Icon(Icons.add),
                       label: Text('Test Upper'),
                     ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.list),
+                      label: Text('Test SliverList'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.chat),
+                      label: Text('Test Chat'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.storage),
+                      label: Text('Test DataBox'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.drag_handle),
+                      label: Text('Test DragIconButton'),
+                    ),
                   ],
                   selectedIndex: selectedIndex,
                   onDestinationSelected: (value) {
@@ -128,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class AccountSettingsDrawer extends StatelessWidget {
-  const AccountSettingsDrawer({Key? key}) : super(key: key);
+  const AccountSettingsDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -222,12 +248,8 @@ class LikePage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
     var pair = appState.current;
 
-    IconData icon;
     if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
+    } else {}
 
     return Center(
       child: Column(
@@ -280,7 +302,7 @@ class TestUpperPage extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: const Color.fromARGB(255, 37, 164, 180),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -328,6 +350,275 @@ class BigCase extends StatelessWidget {
           style: style,
           semanticsLabel: "${pair.first} ${pair.second}",
         ),
+      ),
+    );
+  }
+}
+
+class TestChatPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(child: TestChatExample());
+    //State<TestChatPage> createState() => _TestChatPageState();
+  }
+}
+
+class TestChatExample extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        children: [
+          Container(
+            height: 500, // Фиксированная высота чата
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(12),
+                bottomRight: Radius.circular(12),
+              ),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    children: [
+                      ChatMessage(text: 'Привет! Как дела?', isMe: true),
+                      ChatMessage(text: 'Всё отлично, спасибо!', isMe: false),
+                      ChatMessage(text: 'Чем занимаешься?', isMe: true),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 8),
+                Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Введите сообщение...',
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.send, color: Colors.blue),
+                        onPressed: () {},
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TestDataBox extends StatefulWidget {
+  @override
+  _TestDataBoxState createState() => _TestDataBoxState();
+}
+
+class _TestDataBoxState extends State<TestDataBox> {
+  bool _isBottomVisible = false;
+  bool _isChatVisible = false;
+  Offset _position = Offset.zero; // Начинаем с нулевой позиции
+
+  void _handleTopTap() {
+    setState(() {
+      _isChatVisible = !_isChatVisible;
+      // Закрываем нижний блок при открытии чата
+      if (_isChatVisible) _isBottomVisible = false;
+    });
+  }
+
+  void _handleTopDoubleTap() {
+    setState(() {
+      _isBottomVisible = !_isBottomVisible;
+      // Закрываем чат при открытии нижнего блока
+      if (_isBottomVisible) _isChatVisible = false;
+    });
+  }
+
+  void _handleDragStart(DragStartDetails details) {}
+
+  void _handleDragUpdate(DragUpdateDetails details) {
+    setState(() {
+      _position = Offset(
+        _position.dx + details.delta.dx,
+        _position.dy + details.delta.dy,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            Positioned(
+              left: _position.dx,
+              top: _position.dy,
+              child: GestureDetector(
+                onPanStart: _handleDragStart,
+                onPanUpdate: _handleDragUpdate,
+                child: Container(
+                  // Используем ширину родительского контейнера
+                  width: constraints.maxWidth,
+                  constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Верхний блок
+                      GestureDetector(
+                        onTap: _handleTopTap,
+                        onDoubleTap: _handleTopDoubleTap,
+                        child: MyButtonWidget(
+                          isBottomVisible: _isBottomVisible,
+                          isChatVisible: _isChatVisible,
+                          iconId: '',
+                          onDragCompleted: (String p1, String p2) {},
+                        ),
+                      ),
+
+                      // Нижний блок (появляется при двойном нажатии)
+                      if (_isBottomVisible)
+                        MySettingsWidget(
+                          firstIconId: '',
+                          secondIconId: '',
+                          onDragCompleted: (String p1, String p2) {},
+                        ),
+
+                      // Чат (появляется при одинарном нажатии)
+                      if (_isChatVisible)
+                        Container(
+                          height: 200, // Фиксированная высота чата
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(12),
+                              bottomRight: Radius.circular(12),
+                            ),
+                            border: Border.all(color: Colors.grey[300]!),
+                          ),
+                          child: MyChatWidget(),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class MyChatWidget extends StatelessWidget {
+  const MyChatWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            children: [
+              ChatMessage(text: 'Привет! Как дела?', isMe: true),
+              ChatMessage(text: 'Всё отлично, спасибо!', isMe: false),
+              ChatMessage(text: 'Чем занимаешься?', isMe: true),
+            ],
+          ),
+        ),
+        SizedBox(height: 8),
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey[300]!),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Введите сообщение...',
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.send, color: Colors.blue),
+                onPressed: () {},
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ChatMessage extends StatelessWidget {
+  final String text;
+  final bool isMe;
+
+  const ChatMessage({required this.text, required this.isMe});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: isMe
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isMe ? Colors.blue : Colors.grey[300],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              text,
+              style: TextStyle(color: isMe ? Colors.white : Colors.black),
+            ),
+          ),
+        ],
       ),
     );
   }
